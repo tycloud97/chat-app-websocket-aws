@@ -116,7 +116,7 @@ module.exports.authorizerFunc = async (event, context, callback) => {
     methodArn
   } = event;
 
-  const app_client_id = APP_CLIENT_ID;
+  const app_client_id = '5u0q954nemam8dbb2r3rlsi86a';
   if (!token) return context.fail("Unauthorized");
   const sections = token.split(".");
   let authHeader = jose.util.base64url.decode(sections[0]);
@@ -125,6 +125,8 @@ module.exports.authorizerFunc = async (event, context, callback) => {
   const rawRes = await fetch(keys_url);
   const response = await rawRes.json();
 
+
+  console.log(response)
   if (rawRes.ok) {
     const keys = response["keys"];
     let key_index = -1;
@@ -157,6 +159,7 @@ module.exports.authorizerFunc = async (event, context, callback) => {
           if (claims.aud != app_client_id) {
             context.fail("Token was not issued for this audience");
           }
+          console.log(generateAllow("me", methodArn))
           context.succeed(generateAllow("me", methodArn));
         })
         .catch(err => {
