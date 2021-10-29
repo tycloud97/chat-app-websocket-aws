@@ -110,7 +110,7 @@ const deleteConnection = connectionId => {
 
 module.exports.authorizerFunc = async (event, context, callback) => {
   const keys_url =
-    "https://cognito-idp.ap-southeast-2.amazonaws.com/USER_POOL_ID/.well-known/jwks.json";
+    "https://cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_QKqrmYq2d/.well-known/jwks.json";
   const {
     queryStringParameters: { token },
     methodArn

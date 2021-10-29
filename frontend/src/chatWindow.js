@@ -13,7 +13,7 @@ const ChatWindow = props => {
     () => {
       if (props.authData)
         ws = new Sockette(
-          "wss://APP_CLIENT_ID.execute-api.ap-southeast-2.amazonaws.com/dev?token=" +
+          "wss://sxaylxqkbj.execute-api.ap-southeast-1.amazonaws.com/dev?token=" +
             props.authData.signInUserSession.accessToken.jwtToken,
           {
             timeout: 5e3,

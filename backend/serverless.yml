@@ -2,10 +2,10 @@ service: serverless-chat
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stackName: ${self:service}-${self:provider.stage}
   stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'ap-southeast-2'}
+  region: ${opt:region, 'ap-southeast-1'}
   iamRoleStatements:
     - Effect: Allow
       Action:
