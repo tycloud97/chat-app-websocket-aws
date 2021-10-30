@@ -156,7 +156,7 @@ module.exports.authorizerFunc = async (event, context, callback) => {
     });
 
     if (!foundKey) {
-      context.fail("Public key not found in jwks.json");
+      callback("Public key not found in jwks.json");
     }
 
     console.log({foundKey})
@@ -172,21 +172,23 @@ module.exports.authorizerFunc = async (event, context, callback) => {
           // additionally we can verify the token expiration
           const current_ts = Math.floor(new Date() / 1000);
           if (current_ts > claims.exp) {
-            context.fail("Token is expired");
+            callback("Token is expired");
           }
           // and the Audience (use claims.client_id if verifying an access token)
 
           console.log(JSON.stringify(claims))
           if (claims.aud != app_client_id) {
-            context.fail("Token was not issued for this audience");
+            callback("Token was not issued for this audience");
           }
-          console.log(JSON.stringify(generateAllow("me", 'arn:aws:execute-api:ap-southeast-1:827539266883:sxaylxqkbj/*/*')))
-          callback(null, generateAllow("me", 'arn:aws:execute-api:ap-southeast-1:827539266883:sxaylxqkbj/*/*'));
+          console.log(JSON.stringify(generateAllow("me", methodArn)))
+          callback(null, generateAllow("me", methodArn));
+
         })
         .catch(err => {
-          context.fail("Signature verification failed");
+          callback("Signature verification failed");
         });
     });
+    return generateAllow("me", methodArn);
   }
 };
 
@@ -204,6 +206,11 @@ const generatePolicy = function(principalId, effect, resource) {
     policyDocument.Statement[0] = statementOne;
     authResponse.policyDocument = policyDocument;
   }
+  authResponse.context = {
+    "stringKey": "stringval",
+    "numberKey": 123,
+    "booleanKey": true
+  };
   return authResponse;
 };
 
