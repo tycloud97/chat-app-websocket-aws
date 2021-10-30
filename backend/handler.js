@@ -17,12 +17,22 @@ const fetch = require("node-fetch");
 fetch.Promise = Bluebird;
 
 module.exports.connectionManager = (event, context, callback) => {
+    console.log(JSON.stringify(
+      event
+    ))
+
+    console.log(JSON.stringify(
+      event.requestContext.eventType
+    ))
   if (event.requestContext.eventType === "CONNECT") {
     addConnection(event.requestContext.connectionId)
       .then(() => {
         callback(null, successfullResponse);
       })
       .catch(err => {
+        console.log(JSON.stringify(
+          err
+        ))
         callback(null, JSON.stringify(err));
       });
   } else if (event.requestContext.eventType === "DISCONNECT") {
@@ -31,6 +41,9 @@ module.exports.connectionManager = (event, context, callback) => {
         callback(null, successfullResponse);
       })
       .catch(err => {
+        console.log(JSON.stringify(
+          err
+        ))
         callback(null, {
           statusCode: 500,
           body: "Failed to connect: " + JSON.stringify(err)
@@ -116,6 +129,8 @@ module.exports.authorizerFunc = async (event, context, callback) => {
     methodArn
   } = event;
 
+
+  console.log(token)
   const app_client_id = '5u0q954nemam8dbb2r3rlsi86a';
   if (!token) return context.fail("Unauthorized");
   const sections = token.split(".");
@@ -128,6 +143,7 @@ module.exports.authorizerFunc = async (event, context, callback) => {
 
   console.log(response)
   if (rawRes.ok) {
+    console.log("ok")
     const keys = response["keys"];
     let key_index = -1;
     keys.some((key, index) => {
@@ -143,11 +159,14 @@ module.exports.authorizerFunc = async (event, context, callback) => {
       context.fail("Public key not found in jwks.json");
     }
 
+    console.log({foundKey})
+    console.log('Ty')
     jose.JWK.asKey(foundKey).then(function(result) {
       // verify the signature
       jose.JWS.createVerify(result)
         .verify(token)
         .then(function(result) {
+          console.log(JSON.stringify(result))
           // now we can use the claims
           const claims = JSON.parse(result.payload);
           // additionally we can verify the token expiration
@@ -156,11 +175,13 @@ module.exports.authorizerFunc = async (event, context, callback) => {
             context.fail("Token is expired");
           }
           // and the Audience (use claims.client_id if verifying an access token)
+
+          console.log(JSON.stringify(claims))
           if (claims.aud != app_client_id) {
             context.fail("Token was not issued for this audience");
           }
-          console.log(generateAllow("me", methodArn))
-          context.succeed(generateAllow("me", methodArn));
+          console.log(JSON.stringify(generateAllow("me", 'arn:aws:execute-api:ap-southeast-1:827539266883:sxaylxqkbj/*/*')))
+          callback(null, generateAllow("me", 'arn:aws:execute-api:ap-southeast-1:827539266883:sxaylxqkbj/*/*'));
         })
         .catch(err => {
           context.fail("Signature verification failed");

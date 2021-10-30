@@ -40,6 +40,9 @@ functions:
       - websocket:
           route: $connect
           authorizer: authorizerFunc # references the authorizerFunc function below
+          identitySource:
+          - 'route.request.header.token'
+          - 'route.request.querystring.token'
       - websocket:
           route: $disconnect
   authorizerFunc:
